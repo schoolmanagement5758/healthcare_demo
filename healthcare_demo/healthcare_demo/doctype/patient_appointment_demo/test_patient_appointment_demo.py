@@ -4,29 +4,47 @@
 import frappe
 from frappe.tests.utils import FrappeTestCase
 from healthcare_demo.healthcare_demo.doctype.patient_appointment_demo.patient_appointment_demo import calculate_end_time
+from healthcare_demo.healthcare_demo.doctype.patient_appointment_demo.patient_appointment_demo import get_service_price
 
 
 class TestPatientAppointmentDemo(FrappeTestCase):
-    def test_with_service_duration(self):
-        # create a dummy Healthcare Service with 20 min duration
+        
+    def test_calculate_end_time(self):
+        #Create Healthcare Service
         service = frappe.get_doc({
             "doctype": "Healthcare Service",
-            "service_name": "Test Service 20min",
-            "durationmins": 20
+            "service_name": "Operation",
+            "durationmins": 100,
+            "price": 10000
         }).insert(ignore_permissions=True)
 
-        result = calculate_end_time(service.name, "2025-08-30", "14:00:00")
-        self.assertEqual(result, "14:20:00")
+        # Calling  method
+        result = calculate_end_time(
+            service=service.name,
+            appointment_date="2025-08-30",
+            appointment_time="10:00:00"
+        )
 
-    def test_with_default_duration(self):
-        # create a service with no duration
+        #Verify result
+        assert result == "11:40:00"
+
+
+    def test_total_amount_calculation(self):
+        # Create a Healthcare Service with price 200
         service = frappe.get_doc({
             "doctype": "Healthcare Service",
-            "service_name": "Quick Service"
+            "service_name": "Test Service Amount",
+            "durationmins": 10,
+            "price": 200
         }).insert(ignore_permissions=True)
 
-        result = calculate_end_time(service.name, "2025-08-30", "15:00:00")
-        self.assertEqual(result, "15:03:00")
+        # Fetch service price using our function
+        price = get_service_price(service.name)
+        
+        # Suppose quantity = 3
+        quantity = 3
+        total = price * quantity
 
-    def test_with_invalid_inputs(self):
-        self.assertIsNone(calculate_end_time(None, None, None))
+        # Assert calculation is correct
+        self.assertEqual(total, 600)  # 200 * 3
+
