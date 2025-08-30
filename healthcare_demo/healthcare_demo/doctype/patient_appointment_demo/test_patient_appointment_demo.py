@@ -124,7 +124,7 @@ class TestPatientAppointmentDemo(FrappeTestCase):
             "service": service.name,
             "status": "Scheduled",
             "total_amount": service.price,
-            "estimated_end_time": estimated_end_time  # <-- set here
+            "estimated_end_time": estimated_end_time 
         }
 
         # Insert appointment 
