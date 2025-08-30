@@ -1,0 +1,48 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-29 12:20:08.362395",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "working_hours_start",
+  "working_hours_end"
+ ],
+ "fields": [
+  {
+   "fieldname": "working_hours_start",
+   "fieldtype": "Time",
+   "label": "Working Hours Start"
+  },
+  {
+   "fieldname": "working_hours_end",
+   "fieldtype": "Time",
+   "label": "Working Hours End"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-08-29 12:22:15.717821",
+ "modified_by": "Administrator",
+ "module": "Healthcare Demo",
+ "name": "Clinic Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-28 22:17:55.403395",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "patient_name",
+  "patient_contact",
+  "appointment_date",
+  "appointment_time",
+  "service",
+  "estimated_end_time",
+  "total_amount",
+  "status",
+  "sales_invoice"
+ ],
+ "fields": [
+  {
+   "fieldname": "patient_name",
+   "fieldtype": "Data",
+   "label": "Patient Name"
+  },
+  {
+   "fieldname": "patient_contact",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Patient Contact",
+   "permlevel": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "appointment_date",
+   "fieldtype": "Date",
+   "label": "Appointment Date"
+  },
+  {
+   "fieldname": "appointment_time",
+   "fieldtype": "Time",
+   "label": "Appointment Time"
+  },
+  {
+   "fieldname": "service",
+   "fieldtype": "Link",
+   "label": "Service",
+   "options": "Healthcare Service"
+  },
+  {
+   "fieldname": "estimated_end_time",
+   "fieldtype": "Time",
+   "label": "Estimated End Time"
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Scheduled\nCompleted\nCancelled\nDefault\nScheduled"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-08-29 14:38:19.944452",
+ "modified_by": "Administrator",
+ "module": "Healthcare Demo",
+ "name": "Patient Appointment Demo",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

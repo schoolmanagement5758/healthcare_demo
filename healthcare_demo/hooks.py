@@ -5,6 +5,16 @@ app_description = "demo"
 app_email = "vaishnavipatil5758@gmail.com"
 app_license = "mit"
 
+doc_events = {
+    "Patient Appointment Demo": {
+        "on_update": "healthcare_demo.healthcare_demo.doctype.patient_appointment_demo.patient_appointment_demo.appointment_status_logger",
+        "after_insert": "healthcare_demo.healthcare_demo.doctype.patient_appointment_demo.patient_appointment_demo.create_sales_invoice"
+    }
+}
+
+
+
+
 # Apps
 # ------------------
 
