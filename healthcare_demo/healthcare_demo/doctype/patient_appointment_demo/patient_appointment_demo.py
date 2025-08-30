@@ -44,7 +44,7 @@ def validate_overlap(doc):
     if not (doc.appointment_date and doc.appointment_time and doc.estimated_end_time):
         return
 
-    # Construct start and end datetime for current appointment
+    
     start_dt = get_datetime(f"{doc.appointment_date} {doc.appointment_time}")
     end_dt = get_datetime(f"{doc.appointment_date} {doc.estimated_end_time}")
 
@@ -78,7 +78,7 @@ def calculate_end_time(service, appointment_date, appointment_time):
     if not service or not appointment_time or not appointment_date:
         return None
 
-    # Get service duration
+    
     service_doc = frappe.get_doc("Healthcare Service", service)
     duration = service_doc.durationmins or 3
 
@@ -103,16 +103,15 @@ def get_service_price(service):
 
     service_doc = frappe.get_doc("Healthcare Service", service)
 
-    # Assuming Healthcare Service has a field 'price'
+    
     return service_doc.price or 0
 
 def appointment_status_logger(doc, method):
     if doc.status == "Completed":
         frappe.logger().info(f"Patient Appointment {doc.name} has been marked as Completed.")
-        # Or simple print (will show in bench logs)
+        
         print(f"[LOG] Patient Appointment {doc.name} marked as Completed.")
 
-        
 def create_sales_invoice(doc, method):
     frappe.logger().info(f"Hook triggered for {doc.name}")
     try:
@@ -126,16 +125,22 @@ def create_sales_invoice(doc, method):
                 "territory": "All Territories"
             }).insert(ignore_permissions=True)
 
-        # Get Linked Item from Healthcare Service
+        # Get linked Item for the service
         service_item = frappe.db.get_value("Healthcare Service", doc.service, "linked_item")
         if not service_item:
             frappe.throw(f"No linked Item found for Healthcare Service {doc.service}")
+
+        # Ensure total_amount exists
+        if not getattr(doc, "total_amount", None) or doc.total_amount == 0:
+            service_price = frappe.db.get_value("Healthcare Service", doc.service, "price") or 0
+            doc.total_amount = service_price
+            doc.save(ignore_permissions=True)
 
         # Create Sales Invoice
         invoice = frappe.get_doc({
             "doctype": "Sales Invoice",
             "customer": customer,
-            "appointment": doc.name,  
+            "appointment": doc.name,
             "items": [
                 {
                     "item_code": service_item,
@@ -149,38 +154,38 @@ def create_sales_invoice(doc, method):
         invoice.submit()
         print(f"Invoice created: {invoice.name}")
 
-        # Try creating Payment Entry separately
-        try:
-            company = "Parvati"
-
-            default_cash = frappe.db.get_value("Company", company, "default_cash_account")
-            default_receivable = frappe.db.get_value("Company", company, "default_receivable_account")
-
-            payment_entry = frappe.get_doc({
-                "doctype": "Payment Entry",
-                "payment_type": "Receive",
-                "party_type": "Customer",
-                "party": customer,
-                "paid_amount": doc.total_amount,
-                "received_amount": doc.total_amount,
-                "reference_no": f"PAY-{doc.name}",
-                "reference_date": doc.appointment_date,
-                "references": [
-                    {
-                        "reference_doctype": "Sales Invoice",
-                        "reference_name": invoice.name,
-                        "allocated_amount": doc.total_amount
-                    }
-                ],
-                "mode_of_payment": "Cash",
-                "paid_to": frappe.db.get_value("Company", company, "default_cash_account") 
-            })
-            payment_entry.insert(ignore_permissions=True)
-            payment_entry.submit()
-            print(f"Payment Entry created: {payment_entry.name}")
-        except Exception as pe:
-            frappe.log_error(title="Payment Entry Failed", message=str(pe))
-            print(f"[WARNING] Payment Entry not created: {str(pe)}")
+        # Create Payment Entry only if amount > 0
+        if doc.total_amount > 0:
+            try:
+                company = "Parvati"
+                default_cash = frappe.db.get_value("Company", company, "default_cash_account")
+                payment_entry = frappe.get_doc({
+                    "doctype": "Payment Entry",
+                    "payment_type": "Receive",
+                    "party_type": "Customer",
+                    "party": customer,
+                    "paid_amount": doc.total_amount,
+                    "received_amount": doc.total_amount,
+                    "reference_no": f"PAY-{doc.name}",
+                    "reference_date": doc.appointment_date,
+                    "mode_of_payment": "Cash",
+                    "paid_to": default_cash,
+                    "references": [
+                        {
+                            "reference_doctype": "Sales Invoice",
+                            "reference_name": invoice.name,
+                            "allocated_amount": doc.total_amount
+                        }
+                    ]
+                })
+                payment_entry.insert(ignore_permissions=True)
+                payment_entry.submit()
+                print(f"Payment Entry created: {payment_entry.name}")
+            except Exception as pe:
+                frappe.log_error(title="Payment Entry Failed", message=str(pe))
+                print(f"[INFO] Payment Entry skipped: {str(pe)}")
+        else:
+            print(f"[INFO] Payment Entry skipped for appointment {doc.name} (total_amount = 0)")
 
     except Exception as e:
         frappe.log_error(title="Sales Invoice Creation Failed", message=str(e))
