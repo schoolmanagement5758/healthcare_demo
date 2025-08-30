@@ -1,4 +1,5 @@
 ### Healthcare Demo
+[Create New Patient Appointment](http://demo.com:8000/patient-appointment/new)
 
 demo
 
